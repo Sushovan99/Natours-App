@@ -1,3 +1,5 @@
 #Ignoring dev-data folder
 dev-data/
 node_modules/
+
+config.env
