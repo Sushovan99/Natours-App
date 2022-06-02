@@ -1,0 +1,3 @@
+#Ignoring dev-data folder
+dev-data/
+node_modules/
