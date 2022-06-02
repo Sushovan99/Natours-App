@@ -7,8 +7,8 @@
   "description": "Learning Node, Express  & MongoDB by building project",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
-    "start:prod": "SET NODE_ENV=production&&node app.js"
+    "start": "nodemon server.js",
+    "start:prod": "SET NODE_ENV=production&&node server.js"
   },
   "author": "Sushovan Biswas",
   "license": "ISC",

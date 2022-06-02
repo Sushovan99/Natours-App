@@ -1,4 +1,10 @@
 {
   "singleQuote": true,
-  "prettier.endOfLine": "lf"
+  "prettier.endOfLine": "lf",
+  "prettier/prettier": [
+    "error",
+    {
+      "endOfLine": "auto"
+    }
+  ]
 }
