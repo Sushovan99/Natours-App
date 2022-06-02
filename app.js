@@ -7,7 +7,7 @@ dotenv.config({
   path: `${__dirname}/config.env`,
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 // Reading tours-simple.json
@@ -17,7 +17,10 @@ const tours = JSON.parse(
 
 // Body parser middleware
 app.use(express.json());
-app.use(morgan('dev'));
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Get all tours
 app.get('/api/v1/tours', (req, res) => {
@@ -44,8 +47,8 @@ app.get('/api/v1/tours/:id', (req, res) => {
 // Create a tour
 app.post('/api/v1/tours', (req, res) => {
   const newID = tours[tours.length - 1].id + 1;
-  const body = req.body;
-  const newTour = { id: newID, ...body };
+
+  const newTour = { id: newID, ...req.body };
   tours.push(newTour);
 
   fs.writeFile(
