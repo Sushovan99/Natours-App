@@ -2,7 +2,7 @@
   "name": "natours-app",
   "version": "1.0.0",
   "engines": {
-    "node": ">=8.3.0"
+    "node": ">=16.15.0"
   },
   "description": "Learning Node, Express  & MongoDB by building project",
   "main": "index.js",
