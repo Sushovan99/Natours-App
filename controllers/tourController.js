@@ -3,8 +3,20 @@ const Tour = require('../models/tourModel');
 //--->> Tour Controllers/Handler functions
 exports.getAllTours = async (req, res) => {
   try {
-    // Using the .find() method to find all the tours that matches the search query
-    const tours = await Tour.find();
+    // 1st way of filtering the data
+    const tours = await Tour.find(req.query);
+    // const tours = await Tour.where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    // 2nd way of filtering the data
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
     res.status(200).json({
       status: 'success',
       results: tours.length,

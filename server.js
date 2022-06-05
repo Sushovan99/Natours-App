@@ -5,6 +5,9 @@ dotenv.config({
   path: './config.env',
 });
 
+// Importing our Express App
+const app = require('./app');
+
 // Connecting DB
 const DB = process.env.DB_CONNECT.replace(
   '<PASSWORD>',
@@ -16,8 +19,6 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log('DB connected'));
-
-const app = require('./app');
 
 // Starting server
 const PORT = process.env.PORT || 3000;
