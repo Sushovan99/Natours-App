@@ -3,19 +3,13 @@ const Tour = require('../models/tourModel');
 //--->> Tour Controllers/Handler functions
 exports.getAllTours = async (req, res) => {
   try {
-    // 1st way of filtering the data
-    const tours = await Tour.find(req.query);
-    // const tours = await Tour.where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
+    // 1) Advanced filtering
+    let queryString = JSON.stringify(req.query);
+    queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g, (el) => `$${el}`);
 
-    // 2nd way of filtering the data
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
+    const query = Tour.find(JSON.parse(queryString));
+    // EXECUTE THE QUERY
+    const tours = await query;
 
     res.status(200).json({
       status: 'success',
