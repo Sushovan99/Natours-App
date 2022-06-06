@@ -5,7 +5,10 @@ exports.getAllTours = async (req, res) => {
   try {
     // 1) Advanced filtering
     let queryString = JSON.stringify(req.query);
-    queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g, (el) => `$${el}`);
+    queryString = queryString.replace(
+      /\b(gt|gte|lt|lte)\b/g,
+      (match) => `$${match}`
+    );
 
     let query = Tour.find(JSON.parse(queryString));
     // 2) Sorting
@@ -24,6 +27,18 @@ exports.getAllTours = async (req, res) => {
       query = query.select(fields);
     } else {
       query = query.select('-__v -createdAt');
+    }
+
+    // 4) Pagination -> 1-10 page-1, 11-20 page-2, 21-30 page-3
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+
+    // Error Handling
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('No more documents left');
     }
     // EXECUTE THE QUERY
     const tours = await query;
