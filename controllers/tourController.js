@@ -9,15 +9,21 @@ exports.getAllTours = async (req, res) => {
 
     let query = Tour.find(JSON.parse(queryString));
     // 2) Sorting
-    console.log(req.query);
     if (req.query.sort) {
       // request -> http://localhost:PORT/api/V1/tours?sort=price,ratingsAverage
       const sortBy = req.query.sort.split(',').join(' ');
-      console.log(sortBy);
       query = query.sort(sortBy);
     } else {
-      // Default sort
-      query = query.sort('createdAt');
+      // Default sort -> Sorts from new to old
+      query = query.sort('-createdAt');
+    }
+
+    // 3) Limiting fields
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v -createdAt');
     }
     // EXECUTE THE QUERY
     const tours = await query;
