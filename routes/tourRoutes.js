@@ -4,21 +4,26 @@ const tourController = require(`${__dirname}/../controllers/tourController.js`);
 
 // ------>> Tour Routes
 // Creating separate router for each route. Both of these are now middlewares
-const tourRouter = express.Router();
+const router = express.Router();
 
-// Param middleware
-// tourRouter.param('id', tourController.checkID);
-tourRouter
+// Using .aggregate()
+router.route('/tour-stats').get(tourController.getTourStats);
+
+router.route('/monthly-plans/:year').get(tourController.getMonthlyPlans);
+
+router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
-tourRouter
+
+router
   .route('/')
   .get(tourController.getAllTours)
   .post(tourController.createTour);
-tourRouter
+
+router
   .route('/:id')
   .get(tourController.getTour)
   .patch(tourController.updateTour)
   .delete(tourController.deleteTour);
 
-module.exports = tourRouter;
+module.exports = router;
