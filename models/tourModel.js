@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 // Create a tourSchema with mongoose
 const tourSchema = new mongoose.Schema(
@@ -10,6 +11,7 @@ const tourSchema = new mongoose.Schema(
       // .trim() -> Removes empty white space at the beginning & at the end of the String
       trim: true,
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration'],
@@ -61,6 +63,7 @@ const tourSchema = new mongoose.Schema(
     startDates: [Date],
   },
   {
+    // Options for enabling virtual fields/properties
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
@@ -69,6 +72,24 @@ const tourSchema = new mongoose.Schema(
 // Creating Virtual Properties
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
+});
+
+// DOCUMENT MIDDLEWARE:
+// .pre() -> runs only before .save() & .create() not on any other CRUD methods.
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourSchema.pre('save', function (next) {
+  console.log('Will save document');
+  next();
+});
+
+// .post() -> runs after .save() & .create().
+tourSchema.post('save', function (doc, next) {
+  console.log(doc);
+  next();
 });
 // Create a Tour Model using the tourSchema
 const Tour = mongoose.model('Tour', tourSchema);
