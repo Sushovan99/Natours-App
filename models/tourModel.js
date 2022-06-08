@@ -61,6 +61,10 @@ const tourSchema = new mongoose.Schema(
     },
     // Array containing starting dates of different tours
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     // Options for enabling virtual fields/properties
@@ -81,16 +85,20 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-tourSchema.pre('save', function (next) {
-  console.log('Will save document');
+// QUERY MIDDLEWARE:
+// .pre('find') -> run before the .find() query search
+tourSchema.pre(/^find/, function (next) {
+  this.startTime = Date.now();
+  // This will hide the tour that has secretTour: true
+  this.find({ secretTour: { $ne: true } });
   next();
 });
 
-// .post() -> runs after .save() & .create().
-tourSchema.post('save', function (doc, next) {
-  console.log(doc);
+tourSchema.post(/^find/, function (_doc, next) {
+  console.log(`Time taken: ${Date.now() - this.startTime}ms`);
   next();
 });
+
 // Create a Tour Model using the tourSchema
 const Tour = mongoose.model('Tour', tourSchema);
 
