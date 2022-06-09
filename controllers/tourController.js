@@ -75,7 +75,7 @@ exports.updateTour = async (req, res) => {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       // The new: true option returns the updated document
       new: true,
-      // runValidators: if true, runs update validators on this command. Update validators validate the update operation against the model's schema
+      // runValidators: if true, runs schema validation before updating the document. If not provided then validation will not be performed.
       runValidators: true,
     });
 

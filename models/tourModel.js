@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
+
+const schemaOptions = {
+  // Options for enabling virtual fields/properties
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+};
 
 // Create a tourSchema with mongoose
 const tourSchema = new mongoose.Schema(
@@ -10,6 +17,13 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       // .trim() -> Removes empty white space at the beginning & at the end of the String
       trim: true,
+      // Both maxLength & minLength are String validators
+      maxLength: [40, 'A tour name must have at most 40 characters'],
+      minLength: [10, 'A tour must have at least 10 characters'],
+      validate: {
+        validator: (val) => validator.isAlpha(val, ['en-US'], { ignore: ' ' }),
+        message: 'A tour must only contain String',
+      },
     },
     slug: String,
     duration: {
@@ -23,10 +37,18 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'A tour must have a difficulty'],
+      // enum -> This validator is only for Strings
+      enum: {
+        values: ['easy', 'medium', 'hard'],
+        message: 'Difficulty is either: easy, medium or hard',
+      },
     },
     ratingsAverage: {
       type: Number,
       default: 4.6,
+      // min & max validators are used on numbers & also on Dates
+      max: [5, 'Ratings must be less than or equal to 5'],
+      min: [1, 'Ratings must be greater than or equal to 1'],
     },
     ratingsQuantity: {
       type: Number,
@@ -36,7 +58,18 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      // Custom validator
+      validate: {
+        // validator takes in a function that has access to the priceDiscount value
+        validator: function (val) {
+          // 'this' only has access to current doc on NEW document creation. We don't have access to 'this' keyword when we're updating document.
+          return this.price > val;
+        },
+        message: 'Discount price({VALUE}) must be less than actual price',
+      },
+    },
     summary: {
       type: String,
       trim: true,
@@ -66,11 +99,7 @@ const tourSchema = new mongoose.Schema(
       default: false,
     },
   },
-  {
-    // Options for enabling virtual fields/properties
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
+  schemaOptions
 );
 
 // Creating Virtual Properties
@@ -96,6 +125,14 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.post(/^find/, function (_doc, next) {
   console.log(`Time taken: ${Date.now() - this.startTime}ms`);
+  next();
+});
+
+// AGGERGATION MIDDLEWARE:
+tourSchema.pre('aggregate', function (next) {
+  // this.pipeline() returns the aggregation pipeline array
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline());
   next();
 });
 

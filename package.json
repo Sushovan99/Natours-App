@@ -26,7 +26,8 @@
     "mongoose": "^6.3.5",
     "morgan": "^1.10.0",
     "prettier": "^2.6.2",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"
