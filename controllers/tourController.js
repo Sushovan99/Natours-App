@@ -12,6 +12,7 @@ exports.aliasTopTours = (req, res, next) => {
 exports.getAllTours = async (req, res) => {
   try {
     // BUILD THE QUERY
+    console.log(req.params);
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .sort()
