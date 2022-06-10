@@ -25,8 +25,16 @@ app.use((req, res, next) => {
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
 
+// *----- ROUTES ----*
 // Mounting routers (Since, tourRouter & userRouter are middlewares we use app.use)
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+// Handling all Unhandled Routes
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Cannot not find ${req.originalUrl} on this server`,
+  });
+});
 module.exports = app;
