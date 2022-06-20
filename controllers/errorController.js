@@ -10,6 +10,11 @@ const handleDupclicateDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleValidationErrorDB = (err) => {
+  const message = `Invalid input type. ${err.message}`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (res, err) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -49,6 +54,8 @@ module.exports = (err, _req, res, _next) => {
     let error = Object.assign(err);
     if (error.name === 'CastError') error = handleCastDB(error);
     if (error.code === 11000) error = handleDupclicateDB(error);
+    if (error.name === 'ValidationError')
+      error = handleValidationErrorDB(error);
     sendErrorProd(res, error);
   }
 };
