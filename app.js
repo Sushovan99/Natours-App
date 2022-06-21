@@ -3,8 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 
 // User modules/packages
-const userRouter = require(`${__dirname}/routes/userRoutes.js`);
-const tourRouter = require(`${__dirname}/routes/tourRoutes.js`);
+const userRouter = require('./routes/userRoutes');
+const tourRouter = require('./routes/tourRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 

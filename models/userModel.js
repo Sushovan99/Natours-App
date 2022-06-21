@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const bcrypt = require('bcryptjs');
+
 // 3rd party validating package
 const validator = require('validator');
 
@@ -24,7 +26,27 @@ const userSchema = new mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password!'],
+    // This only works on CREATE & SAVE!!! (i.e Model.save() & Model.create())
+    validate: {
+      validator: function (el) {
+        return el === this.password;
+      },
+      message: 'Passwords are not the same',
+    },
   },
+});
+
+//  bcrypt.hash() is a asynchronous function & returns a promise.
+userSchema.pre('save', async function (next) {
+  // If the password is not modified we'll immediately go the next middleware
+  if (!this.isModified('password')) return next();
+
+  // 2nd argument of hash() is the CPU cost
+  this.password = await bcrypt.hash(this.password, 12);
+
+  // After verifying
+  this.passwordConfirm = undefined;
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
