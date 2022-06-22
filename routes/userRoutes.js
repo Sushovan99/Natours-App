@@ -10,6 +10,9 @@ const router = express.Router();
 //------>> Signup route
 router.post('/signup', authController.signup);
 
+//------>> Login route
+router.post('/login', authController.login);
+
 // ------>> User Routes
 router
   .route('/')

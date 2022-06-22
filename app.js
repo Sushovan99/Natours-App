@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 // Serving static files
-app.use(express.static(`${__dirname}/public`));
+app.use(express.static('./public'));
 
 // *----- ROUTES ----*
 // Mounting routers (Since, tourRouter & userRouter are middlewares we use app.use)
