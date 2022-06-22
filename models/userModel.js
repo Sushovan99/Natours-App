@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Please provide a valid email!'],
   },
   photo: String,
+  passwordChangedAt: Date,
   password: {
     type: String,
     required: [true, 'Please provide a password!'],
@@ -51,11 +52,27 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// CUSTOM INSTANCE METHODS
+
+// We define methods on the methods Object & these methods are available after creating an instance of the Model
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
+  if (this.passwordChangedAt) {
+    const changedPasswordTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JWTTimeStamp < changedPasswordTimeStamp;
+  }
+
+  // FALSE means password NOT changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

@@ -1,6 +1,9 @@
 // Importing JWT
 const jwt = require('jsonwebtoken');
 
+// Importing promisify from node 'util' package
+const { promisify } = require('util');
+
 // Importing "User" Model
 const User = require('../models/userModel');
 
@@ -10,6 +13,7 @@ const catchAsyncError = require('../utils/catchAsyncError');
 // Create error message
 const AppError = require('../utils/appError');
 
+// Generating token based on User-ID
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRY,
@@ -22,6 +26,8 @@ exports.signup = catchAsyncError(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    photo: req.body.photo,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   // Creating a JWT token
@@ -45,10 +51,7 @@ exports.login = catchAsyncError(async (req, res, next) => {
   }
 
   // 2) Check if the user exists && password is correct
-  const user = await User.findOne({ email: email }).select({
-    email: 1,
-    password: 1,
-  });
+  const user = await User.findOne({ email: email }).select('+password');
 
   // 3) If everything OK send JWT token to the client
   if (!user || !(await user.correctPassword(password, user.password))) {
@@ -60,4 +63,45 @@ exports.login = catchAsyncError(async (req, res, next) => {
     status: 'success',
     token,
   });
+});
+
+// Authentication Middleware for protecting/restricting other routes
+exports.protect = catchAsyncError(async (req, res, next) => {
+  let token;
+  // 1) Check if token is present in Header & if present get the token from the header
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  // 2) If there is no token send an error message with status 401(unauthorized)
+  if (!token) {
+    return next(
+      new AppError('You are not logged in! Please login to get access', 401)
+    );
+  }
+
+  // 3) Validating the token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // 4) Check if the current user still exists & if doesn't then throw a proper error
+  const currentUser = await User.findById(decoded.id);
+
+  if (!currentUser) {
+    return next(
+      new AppError('The user belonging to this token no longer exists', 401)
+    );
+  }
+
+  // 5) Check if the current user had changed the password after the JWT was issued
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password. Please login again!', 401)
+    );
+  }
+
+  // 6) Grant access to the Protected/Restricted Routes
+  req.user = currentUser;
+  next();
 });

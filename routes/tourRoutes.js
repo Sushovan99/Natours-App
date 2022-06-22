@@ -1,6 +1,7 @@
 const express = require('express');
 
-const tourController = require(`${__dirname}/../controllers/tourController.js`);
+const tourController = require('../controllers/tourController');
+const authController = require('../controllers/authController');
 
 // ------>> Tour Routes
 // Creating separate router for each route. Both of these are now middlewares
@@ -17,7 +18,7 @@ router
 
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
 
 router
