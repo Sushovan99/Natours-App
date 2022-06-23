@@ -14,10 +14,12 @@ const catchAsyncError = require('../utils/catchAsyncError');
 const AppError = require('../utils/appError');
 
 // Generating token based on User-ID
-const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, {
+const signToken = async (id) => {
+  const token = promisify(jwt.sign)({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRY,
   });
+  return token;
+};
 
 // Using the async error handler wrapper function
 exports.signup = catchAsyncError(async (req, res, next) => {
@@ -28,10 +30,11 @@ exports.signup = catchAsyncError(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     photo: req.body.photo,
     passwordChangedAt: req.body.passwordChangedAt,
+    role: req.body.role,
   });
 
   // Creating a JWT token
-  const token = signToken(newUser._id);
+  const token = await signToken(newUser._id);
 
   // Sending back the token in the response back to the client
   res.status(201).json({
@@ -58,7 +61,7 @@ exports.login = catchAsyncError(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  const token = signToken(user._id);
+  const token = await signToken(user._id);
   res.status(200).json({
     status: 'success',
     token,
@@ -105,3 +108,14 @@ exports.protect = catchAsyncError(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+// Authorization: User Roles and permissions
+
+exports.restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('Your are not admin!', 403));
+    }
+    next();
+  };

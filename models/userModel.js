@@ -17,8 +17,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email!'],
   },
-  photo: String,
-  passwordChangedAt: Date,
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'lead-guide', 'guide'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password!'],
@@ -37,6 +40,8 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same',
     },
   },
+  photo: String,
+  passwordChangedAt: Date,
 });
 
 //  bcrypt.hash() is a asynchronous function & returns a promise.
