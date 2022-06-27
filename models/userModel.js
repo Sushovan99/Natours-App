@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const bcrypt = require('bcryptjs');
 
+const crypto = require('crypto');
+
 // 3rd party validating package
 const validator = require('validator');
 
@@ -42,7 +44,11 @@ const userSchema = new mongoose.Schema({
   },
   photo: String,
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
+
+//  MONGOOSE MIDDLEWARES & HOOKS
 
 //  bcrypt.hash() is a asynchronous function & returns a promise.
 userSchema.pre('save', async function (next) {
@@ -54,6 +60,13 @@ userSchema.pre('save', async function (next) {
 
   // After verifying
   this.passwordConfirm = undefined;
+  next();
+});
+
+//  Update passwordChangedAt property if password is modified or changed
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -78,6 +91,25 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
 
   // FALSE means password NOT changed
   return false;
+};
+
+// Instance method to generate password reset token
+userSchema.methods.createPasswordResetToken = function () {
+  // 1) Generate a random token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  // 2) Hashing the 'passwordResetToken' before saving it.
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // 3) Creating an expiry time for the reset token (Here, it is 10min)
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  console.log({ resetToken }, this.passwordResetToken);
+
+  // 4) Returning the reset token
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

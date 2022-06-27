@@ -13,6 +13,12 @@ router.post('/signup', authController.signup);
 //------>> Login route
 router.post('/login', authController.login);
 
+//------>> Forgot Password route
+router.post('/forgotPassword', authController.forgotPassword);
+
+//------>> Reset Password route
+router.patch('/resetPassword/:resetToken', authController.resetPassword);
+
 // ------>> User Routes
 router
   .route('/')
