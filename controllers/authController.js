@@ -196,11 +196,11 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
     passwordResetExpires: { $gt: Date.now() },
   });
 
-  // 2) If token hasn't expired and user exists, set new password
   if (!user) {
     return next(new AppError('Token is invalid or expired', 400));
   }
 
+  // 2) If token hasn't expired and user exists, set new password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
@@ -212,5 +212,28 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     token,
+  });
+});
+
+// Update already login user password
+exports.updatePassword = catchAsyncError(async (req, res, next) => {
+  // 1) Get user from the collection
+  const user = await User.findById(req.user._id).select('password');
+
+  // 2) Check if POSTed password is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong', 401));
+  }
+
+  // 3) If, so update password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  // 4) Login user, Send JWT
+  const newToken = await signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    token: newToken,
   });
 });
