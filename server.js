@@ -21,6 +21,8 @@ const DB = process.env.DB_CONNECT.replace(
   process.env.DB_PASSWORD
 );
 
+mongoose.set('strictQuery', true);
+
 mongoose
   .connect(DB, {
     useNewUrlParser: true,

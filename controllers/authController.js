@@ -30,6 +30,7 @@ const signToken = async (id) => {
 const createSendToken = async (userObj, statusCode, res) => {
   const token = await signToken(userObj._id);
 
+  // Separating cookie options so, that we can use 'http' during development & 'https' during production
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -37,13 +38,16 @@ const createSendToken = async (userObj, statusCode, res) => {
     httpOnly: true,
   };
 
+  // Enabling the secure option, so that our response is encryted during production
   if (process.env.NODE_ENV === 'production') {
     cookieOptions.secure = true;
   }
 
+  // Removing password & active options from userObj before sending back the response to client
   userObj.password = undefined;
   userObj.active = undefined;
 
+  // Sending cookie to client
   res.cookie('jwt', token, cookieOptions);
 
   res.status(statusCode).json({
