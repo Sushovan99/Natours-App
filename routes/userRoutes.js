@@ -19,12 +19,18 @@ router.post('/forgotPassword', authController.forgotPassword);
 //------>> Reset Password route
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
 
-//------->> Update login/current
+//------->> Update logged in/current user password
 router.patch(
   '/updateMyPassword',
   authController.protect,
   authController.updatePassword
 );
+
+//------->> Update user data
+router.patch('/updateMe', authController.protect, userController.updateMe);
+
+//------->> Delete user
+router.delete('/deleteMe', authController.protect, userController.deleteMe);
 
 // ------>> User Routes
 router
