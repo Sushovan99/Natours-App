@@ -3,6 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 // User modules/packages
 const userRouter = require('./routes/userRoutes');
@@ -24,7 +26,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Limit requests from same IP
 const limiter = rateLimit({
-  windowMs: 30 * 60 * 1000, // Time frame for which requests are checked/remembered. Here, 30 minutes
+  windowMs: 15 * 60 * 1000, // Time frame for which requests are checked/remembered. Here, 30 minutes
   max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
   mesage: 'Too many requests, from this IP please try again after 15min',
 });
@@ -32,6 +34,12 @@ app.use('/api', limiter);
 
 // Body parser middleware -> parses .json() body content to JavaScript Object
 app.use(express.json({ limit: '10kb' })); // limit -> limits the amount of data that can be send to server through body
+
+// Data Sanitization against NoSQL Query Injection
+app.use(mongoSanitize());
+
+// Data Sanitization against XSS attack
+app.use(xss());
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
