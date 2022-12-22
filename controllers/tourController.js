@@ -19,7 +19,6 @@ exports.getAllTours = catchAsyncErr(async (req, res, _next) => {
     .sort()
     .limitFields()
     .paginate();
-
   // EXECUTE THE QUERY
   const tours = await features.query;
 

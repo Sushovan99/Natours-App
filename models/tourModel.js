@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const validator = require('validator');
 
 const schemaOptions = {
   // Options for enabling virtual fields/properties
@@ -20,12 +19,6 @@ const tourSchema = new mongoose.Schema(
       // Both maxLength & minLength are String validators
       maxLength: [40, 'A tour name must have at most 40 characters'],
       minLength: [10, 'A tour must have at least 10 characters'],
-      validate: {
-        validator: function (tourName) {
-          return validator.isAlpha(tourName, ['en-US'], { ignore: ' ' });
-        },
-        message: 'A tour must only contain String',
-      },
     },
     slug: String,
     duration: {
@@ -126,6 +119,12 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
+    guides: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   schemaOptions
 );
@@ -148,6 +147,14 @@ tourSchema.pre(/^find/, function (next) {
   this.startTime = Date.now();
   // This will hide the tour that has secretTour: true
   this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
   next();
 });
 

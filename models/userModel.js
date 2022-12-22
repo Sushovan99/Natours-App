@@ -11,7 +11,12 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please tell us your name!'],
-    // validate: [validator.isAlpha, 'Provide a valid name'],
+    validate: {
+      validator: function (tourName) {
+        return validator.isAlpha(tourName, ['en-US'], { ignore: ' ' });
+      },
+      message: 'Enter a valid name',
+    },
   },
   email: {
     type: String,
