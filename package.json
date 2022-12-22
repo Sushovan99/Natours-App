@@ -10,6 +10,8 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "SET NODE_ENV=production&&node server.js",
+    "delete:tour": "node ./dev-data/data/import-dev-data.js --delete",
+    "seed:tour": "node ./dev-data/data/import-dev-data.js --import",
     "debug": "ndb server.js"
   },
   "author": "Sushovan Biswas",
