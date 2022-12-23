@@ -31,7 +31,7 @@ exports.getAllTours = catchAsyncErr(async (req, res, _next) => {
 
 exports.getTour = catchAsyncErr(async (req, res, next) => {
   // .findById() is the same as writing Tour.findOne({_id: req.params.id})
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate('reviews');
 
   // Handling 404 error
   if (!tour) {

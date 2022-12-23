@@ -134,6 +134,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// Virutal Populate. Here, "reviews" is the name of the virtual field that we're assigning
+tourSchema.virtual('reviews', {
+  ref: 'Review', // Name of the model that we want to reference
+  foreignField: 'tour', // In our review model, we have a field called 'Tour.' And so this is where the ID of the tour is being stored.And so that's why here, in this foreign field,we specify that name of that fieldin order to connect these two models
+  localField: '_id', // Here, we specify where that ID is stored inside this current Tour Model.
+});
+
 // DOCUMENT MIDDLEWARE:
 // .pre() -> runs only before .save() & .create() not on any other CRUD methods.
 tourSchema.pre('save', function (next) {
