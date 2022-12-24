@@ -1,6 +1,6 @@
 const AppError = require('../utils/appError');
 
-// OPRATIONAL ERROR HANDLERS
+// OPERATIONAL ERROR HANDLERS
 const handleCastDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);

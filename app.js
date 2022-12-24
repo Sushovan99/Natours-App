@@ -74,7 +74,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
 // Handling all Unhandled Routes
-app.all('*', (req, res, next) => {
+app.all('*', (req, _res, next) => {
   next(new AppError(`Cannot not find ${req.originalUrl} on this server`, 404));
 });
 

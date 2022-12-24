@@ -3,7 +3,11 @@ const AppError = require('../utils/appError');
 const catchAsyncError = require('../utils/catchAsyncError');
 
 exports.getAllReviews = catchAsyncError(async (req, res, next) => {
-  const review = await Review.find();
+  let filter = {};
+
+  if (req.params.tourId) filter = { tour: req.params.tourId };
+
+  const review = await Review.find(filter);
 
   if (!review.length) {
     return next(new AppError('There are currently no reviews', 404));
@@ -19,6 +23,9 @@ exports.getAllReviews = catchAsyncError(async (req, res, next) => {
 });
 
 exports.createReview = catchAsyncError(async (req, res, next) => {
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user._id;
+
   const newReview = await Review.create({
     review: req.body.review,
     rating: req.body.rating,
