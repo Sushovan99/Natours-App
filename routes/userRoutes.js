@@ -19,27 +19,27 @@ router.post('/forgotPassword', authController.forgotPassword);
 //------>> Reset Password route
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
 
+// Protects all routes after this middleware
+router.use(authController.protect);
+
 //------->> Update logged in/current user password
 router.patch(
   '/updateMyPassword',
-  authController.protect,
+
   authController.updatePassword
 );
 
 //------->> Update user data
-router.patch('/updateMe', authController.protect, userController.updateMe);
+router.patch('/updateMe', userController.updateMe);
 
 //------->> Delete user
-router.delete('/deleteMe', authController.protect, userController.deleteMe);
+router.delete('/deleteMe', userController.deleteMe);
 
 //-------->> Get own data
-router.get(
-  '/me',
-  authController.protect,
-  userController.getMe,
-  userController.getUser
-);
+router.get('/me', userController.getMe, userController.getUser);
 
+// Only admin can perform below actions
+router.use(authController.restrictTo('admin'));
 // ------>> User Routes
 router
   .route('/')
@@ -49,10 +49,6 @@ router
   .route('/:id')
   .get(userController.getUser)
   .patch(userController.updateUser)
-  .delete(
-    authController.protect,
-    authController.restrictTo('admin'),
-    userController.deleteUser
-  );
+  .delete(authController.restrictTo('admin'), userController.deleteUser);
 
 module.exports = router;

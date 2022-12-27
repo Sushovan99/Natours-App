@@ -15,7 +15,7 @@ const filterBody = (reqestBody, ...allowedFields) => {
 };
 
 exports.getMe = (req, res, next) => {
-  req.params.id = req.user.id;
+  req.params.id = req.user._id;
   next();
 };
 
