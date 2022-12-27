@@ -14,6 +14,11 @@ const filterBody = (reqestBody, ...allowedFields) => {
   return reqObj;
 };
 
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.getAllUsers = factory.getAll(User, 'users');
 
 exports.updateMe = catchAsyncError(async (req, res, next) => {

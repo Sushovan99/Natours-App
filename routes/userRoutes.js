@@ -32,6 +32,14 @@ router.patch('/updateMe', authController.protect, userController.updateMe);
 //------->> Delete user
 router.delete('/deleteMe', authController.protect, userController.deleteMe);
 
+//-------->> Get own data
+router.get(
+  '/me',
+  authController.protect,
+  userController.getMe,
+  userController.getUser
+);
+
 // ------>> User Routes
 router
   .route('/')
